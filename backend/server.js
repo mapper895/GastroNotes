@@ -1,11 +1,16 @@
 import express from "express";
 
 import authRoutes from "./routes/auth.route.js";
+import { ENV_VARS } from "./config/envVars.js";
+import { connetDB } from "./config/db.js";
 
 const app = express();
 
+const PORT = ENV_VARS.PORT;
+
 app.use("/api/v1/auth", authRoutes);
 
-app.listen(5000, () => {
-  console.log("Servidor listo en el puerto 5000");
+app.listen(PORT, () => {
+  console.log("Servidor listo en el puerto", PORT);
+  connetDB();
 });
