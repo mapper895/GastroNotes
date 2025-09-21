@@ -79,5 +79,13 @@ export async function login(req, res) {
 }
 
 export async function logout(req, res) {
-  res.send("Logout route");
+  try {
+    res.clearCookie("jwt-gastronotes");
+    res
+      .status(200)
+      .json({ success: true, message: "Cierre de sesión exitoso" });
+  } catch (error) {
+    console.log("Error in logout:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
 }
