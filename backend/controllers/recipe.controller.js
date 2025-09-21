@@ -150,5 +150,37 @@ export async function updateRecipe(req, res) {
     }
 
     res.status(200).json({ success: true, recipe: updatedRecipe });
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error al actualizar la receta:", error);
+    res.status(500).json({ success: false, message: "Error del servidor" });
+  }
+}
+
+// Eliminar una receta existente
+export async function deleteRecipe(req, res) {
+  try {
+    const recipeId = req.params.id;
+    const userId = req.user?._id;
+
+    const recipe = await Recipe.findById(recipeId);
+    if (!recipe) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Receta no encontrada" });
+    }
+
+    // Verificamos que la receta pertenezca al usuario autenticado
+    if (recipe.user.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "No autorizado para eliminar esta receta",
+      });
+    }
+
+    await recipe.deleteOne();
+    res.status(200).json({ success: true, message: "Receta eliminada" });
+  } catch (error) {
+    console.log("Error al eliminar la receta:", error);
+    res.status(500).json({ success: false, message: "Error del servidor" });
+  }
 }
