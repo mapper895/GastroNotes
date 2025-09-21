@@ -75,7 +75,39 @@ export async function signup(req, res) {
 }
 
 export async function login(req, res) {
-  res.send("Login route");
+  try {
+    const { email, password } = req.body;
+    if (!email || !password) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Todos los campos son requeridos" });
+    }
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Credenciales inválidas" });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      return res
+        .status(400)
+        .json({ success: false, message: "Credenciales inválidas" });
+    }
+
+    generateTokenAndSetCookie(res, user._id);
+
+    res.status(200).json({
+      success: true,
+      user: { ...user._doc, password: "" },
+      message: "Inicio de sesión exitoso",
+    });
+  } catch (error) {
+    console.log("Error al iniciar sesión:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
+  }
 }
 
 export async function logout(req, res) {
