@@ -1,21 +1,22 @@
 import express from "express";
 import {
   createRecipe,
+  updateRecipe,
   deleteRecipe,
   getUserRecipes,
-  updateRecipe,
+  getRecipeById,
+  toggleFavorite,
 } from "../controllers/recipe.controller.js";
 import { protectRoute } from "../middleware/protectRoute.js";
 
 const router = express.Router();
 
-// Ruta para crear una nueva receta
-router.post("/create-recipe", protectRoute, createRecipe);
-// Actualizar receta
-router.put("/update-recipe/:id", protectRoute, updateRecipe);
-// Eliminar receta
-router.delete("/delete-recipe/:id", protectRoute, deleteRecipe);
-// Ruta para obtener todas las recetas de un usuario
-router.get("/user-recipes", protectRoute, getUserRecipes);
+router.post("/", protectRoute, createRecipe);
+router.get("/", protectRoute, getUserRecipes);
+router.get("/:id", protectRoute, getRecipeById);
+router.put("/:id", protectRoute, updateRecipe);
+router.delete("/:id", protectRoute, deleteRecipe);
+
+router.patch("/:id/favorite", protectRoute, toggleFavorite);
 
 export default router;
