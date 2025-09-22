@@ -59,18 +59,24 @@ export async function signup(req, res) {
       username,
       image,
     });
+    await newUser.save();
 
     generateTokenAndSetCookie(res, newUser._id);
-    await newUser.save();
 
     res.status(201).json({
       success: true,
-      user: { ...newUser._doc, password: "" },
+      user: { ...newUser._doc, password: undefined },
       message: "Usuario creado exitosamente",
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Error en el servidor" });
+    if (error.code === 11000) {
+      // E11000: duplicado en Mongo
+      return res
+        .status(400)
+        .json({ success: false, message: "Correo o usuario ya está en uso" });
+    }
     console.error("Error en signup:", error);
+    res.status(500).json({ success: false, message: "Error en el servidor" });
   }
 }
 
