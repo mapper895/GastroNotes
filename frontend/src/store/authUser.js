@@ -38,6 +38,7 @@ export const useAuthStore = create((set) => ({
       await axios.post("/api/v1/auth/logout");
       set({ user: null, isLggingOut: false });
       toast.success("Cierre de sesión exitoso");
+      console.log("Cierre de sesion exitoso");
     } catch (error) {
       set({ isLggingOut: false });
       toast.error(

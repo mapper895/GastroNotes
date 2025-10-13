@@ -1,0 +1,120 @@
+import React, { useEffect, useState } from "react";
+import SidebarContent from "../components/Sidebar";
+import { CircleUserRound, X, ChevronLeft, ChevronRight } from "lucide-react";
+import Navbar from "../components/Navbar";
+import Filters from "../components/Filters";
+
+const HomePage = ({ user }) => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // móvil
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // desktop
+
+  // Detectar tamaño de pantalla
+  const checkScreenSize = () => {
+    setIsMobile(window.innerWidth <= 768);
+  };
+
+  useEffect(() => {
+    checkScreenSize();
+    window.addEventListener("resize", checkScreenSize);
+    return () => window.removeEventListener("resize", checkScreenSize);
+  }, []);
+
+  return (
+    <div className="flex items-center justify-center relative">
+      {/* ===== SIDEBAR DESKTOP ===== */}
+      {!isMobile && (
+        <div
+          className={`border-r border-primary md:sticky md:top-0 md:h-screen bg-white flex flex-col justify-between transition-all duration-300
+          ${isSidebarCollapsed ? "w-[80px]" : "w-[350px]"}`}
+        >
+          {/* BOTÓN COLAPSAR */}
+          <div className="absolute top-1/2 right-[-15px] bg-white border border-primary rounded-full p-1 cursor-pointer z-20">
+            {isSidebarCollapsed ? (
+              <ChevronRight
+                className="text-primary"
+                onClick={() => setIsSidebarCollapsed(false)}
+              />
+            ) : (
+              <ChevronLeft
+                className="text-primary"
+                onClick={() => setIsSidebarCollapsed(true)}
+              />
+            )}
+          </div>
+
+          {/* CONTENIDO SIDEBAR */}
+          <SidebarContent collapsed={isSidebarCollapsed} />
+        </div>
+      )}
+
+      {/* ===== SIDEBAR MOBILE ===== */}
+      {isMobile && (
+        <>
+          {isSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black opacity-40 z-40"
+              onClick={() => setIsSidebarOpen(false)}
+            ></div>
+          )}
+
+          <div
+            className={`fixed top-0 left-0 h-full w-[80%] max-w-[300px] bg-white border-r border-primary z-50 transform transition-transform duration-300 ${
+              isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+            }`}
+          >
+            <div className="flex justify-between items-center p-4 border-b border-primary">
+              <div className="flex gap-2 text-base items-center">
+                <CircleUserRound /> <span>Hola username123!</span>
+              </div>
+              <X
+                className="cursor-pointer text-primary"
+                onClick={() => setIsSidebarOpen(false)}
+              />
+            </div>
+            <div className="overflow-y-auto h-[calc(100%-60px)]">
+              <SidebarContent collapsed={false} />
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="w-full flex flex-col items-center gap-8 pb-10 min-h-screen transition-all duration-300">
+        {/* NAVBAR */}
+        <Navbar
+          isMobile={isMobile}
+          setIsSidebarOpen={setIsSidebarOpen}
+          user={user}
+        />
+
+        {/* HOME FILTER */}
+        <Filters />
+
+        {/* RECIPES CONTAINER */}
+        <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-5">
+          {[1, 2, 3, 4].map((i) => (
+            <div
+              key={i}
+              className="w-[300px] h-[250px] flex flex-col gap-2 border border-primary rounded-4xl overflow-hidden"
+            >
+              <img
+                src="/recipe.jpg"
+                alt="recipe-image"
+                className="w-full h-[150px] object-cover object-center"
+              />
+              <div className="flex flex-col items-center justify-center px-2">
+                <h2 className="font-semibold text-xl text-center">
+                  Título de la receta {i}
+                </h2>
+                <p className="text-sm opacity-60">Descripción de la receta</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default HomePage;
