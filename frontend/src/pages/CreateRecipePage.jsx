@@ -32,7 +32,7 @@ function CreateRecipePage() {
     };
 
     await createRecipe(payload);
-    navigate("/dashboard");
+    navigate("/");
   };
 
   return (

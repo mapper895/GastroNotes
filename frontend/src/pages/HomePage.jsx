@@ -1,6 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useRecipeStore } from "../store/recipeStore";
 import SidebarContent from "../components/Sidebar";
-import { CircleUserRound, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  CircleUserRound,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Loader,
+} from "lucide-react";
 import Navbar from "../components/Navbar";
 import Filters from "../components/Filters";
 
@@ -8,6 +15,7 @@ const HomePage = ({ user }) => {
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // móvil
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // desktop
+  const { recipes, fetchRecipes, loading } = useRecipeStore();
 
   // Detectar tamaño de pantalla
   const checkScreenSize = () => {
@@ -19,6 +27,10 @@ const HomePage = ({ user }) => {
     window.addEventListener("resize", checkScreenSize);
     return () => window.removeEventListener("resize", checkScreenSize);
   }, []);
+
+  useEffect(() => {
+    fetchRecipes();
+  }, [fetchRecipes]);
 
   return (
     <div className="flex items-center justify-center relative">
@@ -92,26 +104,38 @@ const HomePage = ({ user }) => {
         <Filters />
 
         {/* RECIPES CONTAINER */}
-        <div className="grid 2xl:grid-cols-4 xl:grid-cols-3 lg:grid-cols-2 grid-cols-1 gap-5">
-          {[1, 2, 3, 4].map((i) => (
-            <div
-              key={i}
-              className="w-[300px] h-[250px] flex flex-col gap-2 border border-primary rounded-4xl overflow-hidden"
-            >
-              <img
-                src="/recipe.jpg"
-                alt="recipe-image"
-                className="w-full h-[150px] object-cover object-center"
-              />
-              <div className="flex flex-col items-center justify-center px-2">
-                <h2 className="font-semibold text-xl text-center">
-                  Título de la receta {i}
-                </h2>
-                <p className="text-sm opacity-60">Descripción de la receta</p>
-              </div>
+        {loading ? (
+          <div className="w-full h-full">
+            <div className="flex justify-center items-center bg-white h-full">
+              <Loader className="animate-spin text-primary size-10" />
             </div>
-          ))}
-        </div>
+          </div>
+        ) : recipes.length === 0 ? (
+          <p className="text-center text-gray-500">
+            No hay recetas disponibles.
+          </p>
+        ) : (
+          <div className="grid w-full 2xl:grid-cols-5 xl:grid-cols-4 lg:grid-cols-3 sm:grid-cols-2 grid-cols-1 px-5 gap-5">
+            {recipes.map((recipe, index) => (
+              <div
+                key={index}
+                className=" h-[250px] flex flex-col gap-2 border border-primary rounded-4xl overflow-hidden"
+              >
+                <img
+                  src={recipe.image === "" ? "/recipe_alt.jpg" : recipe.image}
+                  alt="recipe-image"
+                  className="w-full h-[150px] object-cover object-center"
+                />
+                <div className="flex flex-col justify-center px-2">
+                  <h2 className="font-semibold text-xl text-center">
+                    {recipe.title}
+                  </h2>
+                  <p className="text-sm opacity-60">{recipe.description}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

@@ -3,33 +3,41 @@ import LoginPage from "./pages/LoginPage";
 import SignupPage from "./pages/SignupPage";
 import { useAuthStore } from "./store/authUser";
 import { useEffect } from "react";
-import Dashboard from "./pages/Dashboard";
 import CreateRecipePage from "./pages/CreateRecipePage";
 import HomePage from "./pages/HomePage";
 import { Toaster } from "react-hot-toast";
+import { Loader } from "lucide-react";
 
 function App() {
-  const { user, authCheck } = useAuthStore();
+  const { user, authCheck, isCheckingAuth } = useAuthStore();
   useEffect(() => {
     authCheck();
   }, [authCheck]);
-  console.log("user in App.jsx:", user);
+
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen">
+        <div className="flex justify-center items-center bg-white h-full">
+          <Loader className="animate-spin text-primary size-10" />
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <Routes>
-        <Route
-          path="/dashboard"
-          element={user ? <Dashboard /> : <Navigate to={"/login"} />}
-        />
         <Route
           path="/"
           element={user ? <HomePage user={user} /> : <Navigate to={"/login"} />}
         />
         <Route
           path="/login"
-          element={!user ? <LoginPage /> : <Navigate to={"/dashboard"} />}
+          element={!user ? <LoginPage /> : <Navigate to={"/"} />}
         />
-        <Route path="/register" element={<SignupPage />} />
+        <Route
+          path="/register"
+          element={!user ? <SignupPage /> : <Navigate to={"/"} />}
+        />
 
         <Route
           path="create-recipe"
