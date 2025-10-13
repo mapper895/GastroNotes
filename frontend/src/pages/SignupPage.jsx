@@ -1,76 +1,133 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authUser";
-import { useNavigate, Link } from "react-router-dom";
 
-function SignupPage() {
+const SignupPage = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
-  const { signup, error, loading } = useAuthStore();
+  const { signup, isSigningUp } = useAuthStore();
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     await signup(form);
     if (useAuthStore.getState().user) {
-      navigate("/dashboard");
+      navigate("/");
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-lg rounded-xl p-6 w-96"
-      >
-        <h2 className="text-2xl font-bold mb-4 text-center">Registro</h2>
-        {error && <p className="text-red-500 mb-2">{error}</p>}
-
-        <input
-          type="text"
-          name="username"
-          placeholder="Usuario"
-          value={form.username}
-          onChange={handleChange}
-          className="w-full p-2 border rounded mb-3"
-        />
-
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo"
-          value={form.email}
-          onChange={handleChange}
-          className="w-full p-2 border rounded mb-3"
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Contraseña"
-          value={form.password}
-          onChange={handleChange}
-          className="w-full p-2 border rounded mb-3"
-        />
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full bg-green-500 text-white py-2 rounded hover:bg-green-600"
-        >
-          {loading ? "Registrando..." : "Registrarse"}
-        </button>
-
-        <p className="mt-4 text-sm text-center">
-          ¿Ya tienes cuenta?{" "}
-          <Link to="/login" className="text-blue-500 hover:underline">
-            Inicia sesión
+    <div className="flex md:flex-row h-screen flex-col">
+      {/* Signup Form */}
+      <div className="md:flex-1 md:order-1 order-2 flex-2/3 justify-between items-center flex flex-col p-5">
+        {/* Signup Navbar */}
+        <div className="w-full justify-between items-center px-5 hidden md:flex">
+          {/* logo */}
+          <div className="flex items-center gap-2">
+            <img className="w-24" src="./gastronote_logo.png" alt="logo" />
+            <h1 className="font-header font-semibold text-secondary text-2xl">
+              GastroNotes
+            </h1>
+          </div>
+          <Link
+            to={"/login"}
+            className="text-primary uppercase font-semibold text-xl"
+          >
+            Inicia Sesión
           </Link>
-        </p>
-      </form>
+        </div>
+        {/* Form */}
+        <div className="flex flex-col justify-between items-center md:w-md w-full md:gap-10 gap-5">
+          <form className="w-full" onSubmit={handleSubmit}>
+            {/* Input Text */}
+            <div className="flex flex-col items-center md:gap-4 text-center">
+              <p className="text-base md:text-xl">¿Nuevo por aquí?</p>
+              <h1 className="text-primary text-2xl md:text-3xl">
+                Crea tu cuenta
+              </h1>
+            </div>
+            {/* Username Input */}
+            <div className="flex flex-col md:gap-4 max-w-md mx-auto mt-4">
+              <label htmlFor="username" className="text-primary">
+                Nombre de usuario
+              </label>
+              <input
+                type="text"
+                className="border-b border-primary px-2 py-1 text-sm md:text-base outline-none"
+                name="username"
+                placeholder="Username123"
+                value={form.username}
+                onChange={handleChange}
+              />
+            </div>
+            {/* Email Input */}
+            <div className="flex flex-col md:gap-4 max-w-md mx-auto mt-8">
+              <label htmlFor="email" className="text-primary">
+                Email
+              </label>
+              <input
+                type="email"
+                className="border-b border-primary px-2 py-1 text-sm md:text-base outline-none"
+                name="email"
+                placeholder="hello@gastronotes.com"
+                value={form.email}
+                onChange={handleChange}
+              />
+            </div>
+            {/* Password Input */}
+            <div className="flex flex-col md:gap-4 max-w-md mx-auto mt-8">
+              <label htmlFor="password" className="text-primary">
+                Contraseña
+              </label>
+              <input
+                type="password"
+                className="border-b border-primary px-2 py-1 text-sm md:text-base outline-none"
+                name="password"
+                placeholder="******"
+                value={form.password}
+                onChange={handleChange}
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={isSigningUp}
+              className="bg-primary text-white px-4 py-2 rounded-2xl hover:opacity-60 cursor-pointer mt-10 w-1/2 mx-auto block"
+            >
+              {isSigningUp ? "Creando cuenta" : "Crear cuenta"}
+            </button>
+          </form>
+        </div>
+        <Link to={"/login"}>
+          ¿Ya tienes cuenta?{" "}
+          <span className="text-primary hover:opacity-60">Inicia Sesión</span>
+        </Link>
+        <Link className="opacity-60 text-xs md:text-base">
+          Términos & Condiciones
+        </Link>
+      </div>
+      {/* Signup image */}
+      <div className="h-1/3 md:h-auto relative md:flex-1 md:order-2 order-1 rounded-b-3xl overflow-hidden">
+        <img
+          className="w-full h-full object-cover object-center"
+          src="./signup.jpg"
+          alt="register-photo"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        <div className="absolute inset-0 flex justify-center items-end md:hidden">
+          <div className="flex items-center gap-2">
+            <img className="w-24" src="./gastronote_logo.png" alt="logo" />
+
+            <h1 className="font-header font-semibold text-secondary text-2xl">
+              GastroNotes
+            </h1>
+          </div>
+        </div>
+      </div>
     </div>
   );
-}
+};
 
 export default SignupPage;
