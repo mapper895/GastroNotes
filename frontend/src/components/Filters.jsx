@@ -1,25 +1,18 @@
 import { CirclePlus } from "lucide-react";
 import { useRecipeStore } from "../store/recipeStore";
 import { Link } from "react-router-dom";
-import React, { useEffect, useState } from "react";
+import React from "react";
 
 const Filters = () => {
-  const { fetchRecipes } = useRecipeStore();
-  const [activeFilter, setActiveFilter] = useState("all");
-
-  useEffect(() => {
-    const filters = {};
-    if (activeFilter === "favorites") filters.favorite = true;
-    fetchRecipes(filters);
-  }, [activeFilter, fetchRecipes]);
+  const { filters, toggleFavoriteFilter, clearFilters } = useRecipeStore();
 
   return (
     <div className="w-full flex md:flex-row md:justify-between md:px-5 flex-col items-center justify-center gap-5">
       <div className="flex items-center justify-center gap-5">
         <button
-          onClick={() => setActiveFilter("all")}
+          onClick={() => clearFilters()}
           className={`px-5 py-2 border  rounded-xl transition ${
-            activeFilter === "all"
+            !filters.favorite && !filters.categoryIds
               ? "border-secondary bg-secondary text-white"
               : "border-primary text-primary hover:bg-primary hover:text-white"
           }`}
@@ -27,9 +20,9 @@ const Filters = () => {
           Todos
         </button>
         <button
-          onClick={() => setActiveFilter("favorites")}
+          onClick={() => toggleFavoriteFilter()}
           className={`px-5 py-2 border rounded-xl transition ${
-            activeFilter === "favorites"
+            filters.favorite
               ? "border-secondary bg-secondary text-white"
               : "border-primary text-primary hover:bg-primary hover:text-white"
           }`}

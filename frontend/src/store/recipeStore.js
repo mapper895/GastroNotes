@@ -1,20 +1,52 @@
 import axios from "axios";
+import toast from "react-hot-toast";
 import { create } from "zustand";
 
 export const useRecipeStore = create((set, get) => ({
   recipes: [],
   loading: false,
-  error: null,
+  filters: { favorite: false, categoryIds: null },
 
-  fetchRecipes: async (filters = {}) => {
+  fetchRecipes: async (overrideFilters) => {
+    const filters = overrideFilters || get().filters;
+    set({ loading: true });
     try {
-      set({ loading: true, error: null });
-      const params = new URLSearchParams(filters).toString();
-      const res = await axios.get(`/api/v1/recipe?${params}`);
+      const params = new URLSearchParams();
+      if (filters.favorite) params.append("favorite", true);
+      if (filters.categoryIds)
+        params.append("categoryIds", filters.categoryIds);
+
+      const res = await axios.get(`/api/v1/recipe?${params.toString()}`);
       set({ recipes: res.data.recipes, loading: false });
-    } catch (err) {
-      set({ error: "Error al obtener recetas", loading: false });
+    } catch (error) {
+      toast.error(
+        error.response?.data?.message || "Error al obtener las recetas"
+      );
+      set({ loading: false });
     }
+  },
+
+  toggleFavoriteFilter: async () => {
+    const { filters } = get();
+    const newFilters = { ...filters, favorite: !filters.favorite };
+    set({ filters: newFilters });
+    await get().fetchRecipes(newFilters);
+  },
+
+  setCategoryFilter: async (categoryId) => {
+    const { filters } = get();
+    const newFilters = {
+      ...filters,
+      categoryIds: filters.categoryIds === categoryId ? null : categoryId,
+    };
+    set({ filters: newFilters });
+    await get().fetchRecipes(newFilters);
+  },
+
+  clearFilters: async () => {
+    const newFilters = { favorite: false, categoryIds: null };
+    set({ filters: newFilters });
+    await get().fetchRecipes(newFilters);
   },
 
   getRecipeById: async (id) => {
