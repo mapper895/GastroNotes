@@ -1,14 +1,24 @@
 import React, { useState } from "react";
 import { useAuthStore } from "../store/authUser";
 import { Link, useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
 
 const LoginPage = () => {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { login, isLogginIn } = useAuthStore();
   const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleMouseDown = () => {
+    setShowPassword(true);
+  };
+
+  const handleMouseUp = () => {
+    setShowPassword(false);
   };
 
   const handleSubmit = async (e) => {
@@ -64,7 +74,7 @@ const LoginPage = () => {
               />
             </div>
             {/* Password Input */}
-            <div className="flex flex-col gap-4 max-w-md mx-auto mt-8">
+            <div className="relative flex flex-col gap-4 max-w-md mx-auto mt-8">
               <div className="flex justify-between items-center">
                 <label htmlFor="password" className="text-primary">
                   Contraseña
@@ -73,14 +83,23 @@ const LoginPage = () => {
                   ¿Olvidaste tu contraseña?
                 </Link>
               </div>
+
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 className="border-b border-primary px-2 py-1 text-sm md:text-base focus:border-primary outline-none"
                 name="password"
                 placeholder="******"
                 value={form.password}
                 onChange={handleChange}
               />
+              {/* Icono para mostrar/ocultar contraseña */}
+              <span
+                onMouseDown={handleMouseDown} // Mostrar contraseña al presionar el mouse
+                onMouseUp={handleMouseUp} // Ocultar la contraseña al soltar el mouse
+                className="absolute bottom-2 right-2 cursor-pointer text-gray-500"
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </span>
             </div>
             <button
               type="submit"
