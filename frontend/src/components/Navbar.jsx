@@ -3,20 +3,16 @@ import React, { useEffect, useState } from "react";
 import { useRecipeStore } from "../store/recipeStore";
 
 const Navbar = ({ isMobile, setIsSidebarOpen, user }) => {
-  const { fetchRecipes } = useRecipeStore();
+  const { searchRecipes } = useRecipeStore();
   const [search, setSearch] = useState("");
-
-  const handleSearch = (e) => {
-    e.preventDefault();
-    fetchRecipes({ search });
-  };
 
   useEffect(() => {
     const delay = setTimeout(() => {
-      if (search.trim().length > 0) {
-        fetchRecipes({ search });
+      const term = search.trim();
+      if (term.length > 0) {
+        searchRecipes(term);
       } else {
-        fetchRecipes(); // si está vacío, traer todo
+        searchRecipes(""); // si está vacío, traer todo
       }
     }, 400);
 
@@ -38,10 +34,7 @@ const Navbar = ({ isMobile, setIsSidebarOpen, user }) => {
         )}
 
         {/* Buscador */}
-        <form
-          onSubmit={handleSearch}
-          className="flex items-center justify-start gap-2 p-3 border border-white rounded-xl md:w-[300px] w-1/2"
-        >
+        <form className="flex items-center justify-start gap-2 p-3 border border-white rounded-xl md:w-[300px] w-1/2">
           <Search />
           <input
             type="text"

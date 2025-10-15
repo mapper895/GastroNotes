@@ -49,6 +49,20 @@ export const useRecipeStore = create((set, get) => ({
     await get().fetchRecipes(newFilters);
   },
 
+  searchRecipes: async (searchTerm) => {
+    set({ loading: true });
+    try {
+      const params = new URLSearchParams();
+      if (searchTerm) params.append("search", searchTerm);
+
+      const res = await axios.get(`/api/v1/recipe?${params.toString()}`);
+      set({ recipes: res.data.recipes, loading: false });
+    } catch (error) {
+      toast.error(error.response?.data?.message || "Error al buscar recetas");
+      set({ loading: false });
+    }
+  },
+
   getRecipeById: async (id) => {
     try {
       const res = await axios.get(`/api/v1/recipe/${id}`);
