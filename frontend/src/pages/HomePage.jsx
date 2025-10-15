@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useRecipeStore } from "../store/recipeStore";
 import SidebarContent from "../components/Sidebar";
 import {
@@ -16,6 +16,8 @@ const HomePage = ({ user }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // móvil
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false); // desktop
   const { recipes, fetchRecipes, loading } = useRecipeStore();
+  const [navbarOpacity, setNavbarOpacity] = useState(1);
+  const mainContainerRef = useRef(null);
 
   // Detectar tamaño de pantalla
   const checkScreenSize = () => {
@@ -32,13 +34,36 @@ const HomePage = ({ user }) => {
     fetchRecipes();
   }, [fetchRecipes]);
 
+  // Scroll listener para cambiar opacidad del navbar
+  useEffect(() => {
+    let lastScroll = 0;
+
+    const handleScroll = (e) => {
+      const currentScroll = isMobile
+        ? mainContainerRef.current.scrollTop
+        : window.scrollY;
+
+      if (currentScroll > lastScroll && currentScroll > 50) {
+        setNavbarOpacity(0.6); // scroll hacia abajo
+      } else {
+        setNavbarOpacity(1); // scroll hacia arriba
+      }
+      lastScroll = currentScroll;
+    };
+
+    const container = isMobile ? mainContainerRef.current : window;
+    container.addEventListener("scroll", handleScroll);
+
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [isMobile]);
+
   return (
     <div className="flex items-center justify-center relative">
       {/* ===== SIDEBAR DESKTOP ===== */}
       {!isMobile && (
         <div
-          className={`border-r border-primary md:sticky md:top-0 md:h-screen bg-white flex flex-col justify-between transition-all duration-300
-          ${isSidebarCollapsed ? "w-[80px]" : "w-[350px]"}`}
+          className={`fixed left-0 top-0 h-screen border-r border-primary bg-white flex flex-col justify-between transition-all duration-300
+    ${isSidebarCollapsed ? "w-[80px]" : "w-[350px]"}`}
         >
           {/* BOTÓN COLAPSAR */}
           <div className="absolute top-1/2 right-[-15px] bg-white border border-primary rounded-full p-1 cursor-pointer z-20">
@@ -92,13 +117,23 @@ const HomePage = ({ user }) => {
       )}
 
       {/* ===== MAIN CONTENT ===== */}
-      <div className="w-full flex flex-col items-center gap-8 pb-10 min-h-screen transition-all duration-300">
-        {/* NAVBAR */}
-        <Navbar
-          isMobile={isMobile}
-          setIsSidebarOpen={setIsSidebarOpen}
-          user={user}
-        />
+      <div
+        ref={mainContainerRef}
+        id="main-container"
+        className={`w-full flex flex-col items-center gap-8 pb-10 min-h-screen transition-all duration-300
+  ${!isMobile ? (isSidebarCollapsed ? "ml-[80px]" : "ml-[350px]") : ""}`}
+      >
+        {/* NAVBAR STICKY */}
+        <div
+          className="w-full sticky top-0 z-10 transition-opacity duration-300"
+          style={{ opacity: navbarOpacity }}
+        >
+          <Navbar
+            isMobile={isMobile}
+            setIsSidebarOpen={setIsSidebarOpen}
+            user={user}
+          />
+        </div>
 
         {/* HOME FILTER */}
         <Filters />
