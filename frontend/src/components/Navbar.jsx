@@ -6,6 +6,11 @@ const Navbar = ({ isMobile, setIsSidebarOpen, user }) => {
   const { searchRecipes } = useRecipeStore();
   const [search, setSearch] = useState("");
 
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    searchRecipes(search.trim());
+  };
+
   useEffect(() => {
     const delay = setTimeout(() => {
       const term = search.trim();
@@ -34,7 +39,10 @@ const Navbar = ({ isMobile, setIsSidebarOpen, user }) => {
         )}
 
         {/* Buscador */}
-        <form className="flex items-center justify-start gap-2 p-3 border border-white rounded-xl md:w-[300px] w-1/2">
+        <form
+          onSubmit={handleSubmit}
+          className="flex items-center justify-start gap-2 p-3 border border-white rounded-xl md:w-[300px] w-1/2"
+        >
           <Search />
           <input
             type="text"

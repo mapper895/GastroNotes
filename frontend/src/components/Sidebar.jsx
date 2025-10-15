@@ -12,6 +12,7 @@ import {
   FolderOpen,
   FolderPlus,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Sidebar = ({ collapsed }) => {
   const { logout } = useAuthStore();
@@ -49,6 +50,19 @@ const Sidebar = ({ collapsed }) => {
   return (
     <aside className="flex flex-col justify-between h-full">
       <div>
+        {!collapsed ? (
+          <Link to={"/"} className="flex w-full justify-center items-center">
+            <img className="w-20" src="./gastronote_logo.png" alt="logo" />
+            <h1 className="font-header font-semibold text-secondary text-xl">
+              GastroNotes
+            </h1>
+          </Link>
+        ) : (
+          <Link className="flex items-center justify-center">
+            <img className="w-16" src="./gastronote_logo.png" alt="logo" />
+          </Link>
+        )}
+
         {/* === FOLDERS === */}
         <div className="flex flex-col gap-5 p-5 border-b border-primary">
           {folders.map((folder) => {
